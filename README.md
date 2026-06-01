@@ -1,74 +1,87 @@
-# Academic CNN Experiments on iCoSimal V3
+# CNN Architecture Study
 
-## Project goal
+Controlled experiments on image classification covering architecture depth,
+hyperparameter tuning, regularization, optimization, and transfer learning.
+All experiments use the same dataset and preprocessing pipeline to ensure
+fair comparison across conditions.
 
-This repository documents an academic deep-learning project on **convolutional neural networks applied to the iCoSimal V3 dataset**.  
-The goal is to systematically investigate how architecture design, hyperparameter choices, regularization, optimization, and transfer learning affect classification performance and generalization.
+> **Best result: 94.7% validation accuracy** with pretrained ResNet18 fine-tuning.
+> Feature extraction reached 94.5% using only 5,130 trainable parameters.
+> Training from scratch on the same backbone: 77.7%.
 
-## Why this project matters
+---
 
-Deep-learning performance does not depend on a single modelling choice.  
-It emerges from the interaction between model architecture, training configuration, optimization strategy, and regularization. This project focuses on making these effects visible through controlled experiments rather than treating model training as a black-box process.
+## Results
 
-The repository is intended as a compact academic study that demonstrates both practical implementation and analytical interpretation of CNN experiments.
+| Model | Best val acc | Best val loss | Trainable params |
+|---|---|---|---|
+| ResNet18 fine-tuned | **0.9468** | 0.1988 | 11.2M |
+| ResNet18 feature extract | 0.9447 | **0.1730** | **5,130** |
+| ResNet18 from scratch | 0.7768 | 0.7631 | 11.2M |
+| ModelD from scratch | 0.6322 | 1.0639 | 305K |
 
-## What this repository demonstrates
+All models trained for 12 epochs.
 
-- structured experimentation with convolutional neural networks
-- comparison of CNN architectures with increasing depth and capacity
-- analysis of hyperparameter sensitivity
-- demonstration of underfitting, good fit, and overfitting regimes
-- evaluation of regularization methods
-- comparison of optimization algorithms
-- exploration of advanced architectures
-- experiment tracking with Weights & Biases
-- automated hyperparameter search with Optuna
-- transfer learning with pretrained vision models
-- clear documentation of results and lessons learned
+---
 
-## Dataset
+## Approach
 
-The experiments were conducted on the **iCoSimal V3 dataset** used in the course setting.
+Eight controlled experiments, each isolating one variable:
 
-The dataset is **not included in this repository**.  
-To reproduce the experiments, use your own local copy of the dataset and place it in an appropriate local data directory.
+| # | Topic | What was varied |
+|---|---|---|
+| 1 | Depth comparison | Shallow vs. deep custom CNNs under identical setup |
+| 2 | Hyperparameter tuning | Learning rate, batch size, weight decay |
+| 3 | Generalization regimes | Underfitting, good fit, overfitting under controlled data budgets |
+| 4 | Regularization | Dropout, weight decay, early stopping |
+| 5 | Optimizer comparison | SGD, SGD with momentum vs. adaptive optimizers (Adam, RMSprop) |
+| 6 | Advanced architectures | Custom CNN (ModelD) vs. DenseNet121 |
+| 7 | Experiment tracking | Weights & Biases logging, Optuna hyperparameter search |
+| 8 | Transfer learning | Pretrained vs. from-scratch ResNet18, feature extraction vs. fine-tuning |
 
-## Experimental scope
+---
 
-The notebook covers a sequence of experiments designed to study different aspects of CNN training and evaluation:
+## Key Findings
 
-1. **Architecture comparison**  
-   Progressive increase in CNN depth and capacity to study the effect of architectural complexity.
+**Transfer learning dominates at limited training budgets.**
+Both pretrained ResNet18 variants exceeded 0.94 validation accuracy within 12 epochs.
+The best from-scratch model (ResNet18, 0.7768) remained far below, showing the
+performance gap comes primarily from pretrained representations, not architecture alone.
 
-2. **Hyperparameter tuning**  
-   Analysis of how learning rate, batch size, and weight decay influence training behaviour and final performance.
+**Feature extraction is the most parameter-efficient strategy.**
+ResNet18 feature extraction reached 0.9447 validation accuracy with only 5,130
+trainable parameters. The train-validation gap was essentially zero, indicating
+stable generalisation without overfitting.
 
-3. **Generalization regimes**  
-   Explicit demonstration of underfitting, good fit, and overfitting.
+**Fine-tuning achieves the highest peak but overfits later.**
+Fine-tuning reached the best single-epoch validation accuracy (0.9468 at epoch 7),
+but the final train-validation gap (0.047) and high training accuracy (0.9885)
+suggest the model began to overfit after the optimal checkpoint.
 
-4. **Regularization**  
-   Comparison of techniques such as dropout, weight decay, and early stopping.
+**Optimization and regularization matter as much as architecture.**
+Earlier experiments showed the same model producing very different results depending
+on learning rate, weight decay, and optimizer. Adaptive optimizers consistently
+outperformed SGD variants, and mild weight decay gave the best generalisation balance.
 
-5. **Optimizer comparison**  
-   Evaluation of different optimization algorithms and their effect on convergence and validation performance.
+---
 
-6. **Advanced architectures**  
-   Comparison between a custom CNN and stronger reference architectures.
+## Visualisations
 
-7. **Experiment tracking and automated search**  
-   Use of **Weights & Biases** for monitoring and **Optuna** for automated hyperparameter optimization.
+### Optimizer comparison
 
-8. **Transfer learning**  
-   Comparison between models trained from scratch and pretrained models using feature extraction and fine-tuning.
+Adam and RMSprop converge clearly faster than SGD and SGD with momentum.
+Plain SGD fails to make meaningful progress within 25 epochs under this setup.
 
-## Repository structure
+<img src="assets/optimizer_comparison_accuracy.png" alt="Optimizer comparison loss curves" width="800">
 
-```text
-academic-cnn-experiments-icosimalv3/
-├── README.md
-├── LICENSE
-├── .gitignore
-└── cnn_experiments_icosimalv3.ipynb
-```
-## Current status
-Completed academic deep-learning project. The repository contains the final notebook with the implemented experiments, results, and conclusions.
+### Transfer learning comparison
+
+<img src="assets/transfer_learning_accuracy.png" alt="Transfer learning accuracy comparison" width="800">
+
+<img src="assets/transfer_learning_loss.png" alt="Transfer learning loss comparison" width="800">
+---
+
+## Reproducibility
+
+The dataset (iCoSimal V3) is course-internal and not publicly available.
+The code, experiments, and findings are fully documented in the notebook.
