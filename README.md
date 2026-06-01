@@ -79,6 +79,7 @@ Plain SGD fails to make meaningful progress within 25 epochs under this setup.
 <img src="assets/transfer_learning_accuracy.png" alt="Transfer learning accuracy comparison" width="800">
 
 <img src="assets/transfer_learning_loss.png" alt="Transfer learning loss comparison" width="800">
+
 ---
 
 ## Reproducibility
